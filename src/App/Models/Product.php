@@ -10,7 +10,7 @@ class Product
     {
         $dns = "mysql:host=localhost;dbname=phpmvc;charset=utf8;port=3306";
 
-        $pdo = new PDO($dns, "stefan", "sl391186", [
+        $pdo = new PDO($dns, "phpmvc", "pass123", [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
 
