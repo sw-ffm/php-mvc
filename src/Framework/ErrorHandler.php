@@ -44,11 +44,11 @@ class ErrorHandler
     
             ini_set("display_errors", "0");
             ini_set("log_errors", "1");
-            require "views/{$template}";
+            require dirname(__DIR__, 2) . "/views/{$template}";
     
         }
     
-        throw new Exception;
+        throw $exception;
     
     }
 }
