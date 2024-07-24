@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Framework;
 
 use Closure;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
 
@@ -43,7 +44,7 @@ class Container
 
             if($type === null){
 
-                exit("Constructor parameter '{$parameter->getName()}'
+                throw new InvalidArgumentException("Constructor parameter '{$parameter->getName()}'
                     in the $class_name class 
                     has no type definition");
 
@@ -51,7 +52,7 @@ class Container
 
             if(!($type instanceof ReflectionNamedType)){
 
-                exit("Constructor parameter '{$parameter->getName()}'
+                throw new InvalidArgumentException("Constructor parameter '{$parameter->getName()}'
                     in the $class_name class 
                     is an invalid type: '$type'");
 
@@ -59,7 +60,7 @@ class Container
 
             if($type->isBuiltin()){
 
-                exit("Unable to relove constructor parameter 
+                throw new InvalidArgumentException("Unable to resolve constructor parameter 
                     '{$parameter->getName()}' of type 
                     '$type' in the $class_name class");
 
