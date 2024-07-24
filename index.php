@@ -17,7 +17,14 @@ $router->add("/products", ["controller" => "products", "action" => "index"]);
 $router->add("/", ["controller" => "home", "action" => "index"]);
 $router->add("/{controller}/{action}");
 
+// Registry
+$container = new Framework\Container;
+$container->set(App\Database::class, function(){
 
-$dispatcher = new Framework\Dispatcher($router);
+    return new App\Database("localhost","phpmvc","phpmvc","pass123");
+
+});
+
+$dispatcher = new Framework\Dispatcher($router, $container);
 
 $dispatcher->handle($path);
