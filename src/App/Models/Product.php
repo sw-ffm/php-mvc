@@ -8,8 +8,6 @@ class Product extends Model
 {
     //protected $table = "product";
 
-    
-
     protected function validate(array $data): void 
     {
         if(empty($data["name"])){

@@ -7,18 +7,20 @@ use App\Database;
 
 abstract class Model
 {
+    
     protected $table;
 
     protected array $errors = [];
 
-    protected function validate(array $data): void
-    {
-    }
-
+    
     public function __construct(private Database $database) 
     {
     }
-
+    
+    protected function validate(array $data): void
+    {
+    }
+    
     public function getInsertID(): string 
     {
         $pdo = $this->database->getConnection();
