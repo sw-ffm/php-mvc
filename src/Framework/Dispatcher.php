@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use ReflectionClass;
 use ReflectionMethod;
 
 class Dispatcher 
@@ -10,7 +11,7 @@ class Dispatcher
     {
     }
 
-    public function handle($path)
+    public function handle(string $path)
     {
 
         $params = $this->router->match($path);
@@ -24,12 +25,33 @@ class Dispatcher
         $action = $this->getActionName($params);
         $controller = $this->getControllerName($params);
 
-        $controller_object = new $controller;
+        $controller_object = $this->getObject($controller);
 
         $args = $this->getActionArguments($controller, $action, $params);
-
         $controller_object->$action(...$args);
 
+    }
+
+    private function getObject(string $class_name): object
+    {
+        // Autowiring
+        $dependencies = [];
+        $reflector = new ReflectionClass($class_name);
+        $constructor = $reflector->getConstructor();
+        if($constructor === null){
+
+            return new $class_name;
+
+        }
+
+        foreach($constructor->getParameters() as $parameter){
+
+            $type = (string)$parameter->getType();
+            $dependencies[] = $this->getObject($type);
+            
+        }
+        
+        return new $class_name(...$dependencies);
     }
 
     private function getActionName(array $params): string 
