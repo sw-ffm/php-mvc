@@ -13,7 +13,7 @@ abstract class Model
     protected array $errors = [];
 
     
-    public function __construct(private Database $database) 
+    public function __construct(protected Database $database) 
     {
     }
     
@@ -107,6 +107,65 @@ abstract class Model
         }
 
         return $stmt->execute();
+    }
+
+    public function update(string $id, array $data): bool 
+    {   
+        $this->validate($data);
+
+        if(!empty($this->errors)){
+            return false;
+        }
+
+        $pdo = $this->database->getConnection();
+
+        $sql = "UPDATE {$this->getTable()} ";
+
+        unset($data["id"]);
+
+        $assignments = array_keys($data);
+
+        array_walk($assignments, function(&$value){
+            $value = "$value=?";
+        });
+
+        $sql .= "SET " . implode(", ", $assignments);
+        $sql .= " WHERE id=?";
+
+        $pdo = $this->database->getConnection();
+
+        $stmt = $pdo->prepare($sql);
+
+        $i=1;
+
+        foreach($data as $value){
+
+            $type = match(gettype($value)){
+                "boolean" => PDO::PARAM_BOOL,
+                "integer" => PDO::PARAM_INT,
+                "NULL" => PDO::PARAM_NULL,
+                default => PDO::PARAM_STR
+            };
+
+            $stmt->bindValue($i++, $value, $type);
+        
+        }$stmt->bindValue($i, $id, PDO::PARAM_INT);
+
+        return $stmt->execute();        
+        
+    }
+
+    public function delete(string $id): bool 
+    {
+        $pdo = $this->database->getConnection();
+
+        $sql = "DELETE FROM {$this->getTable()} WHERE id = :id"; 
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+        return $stmt->execute();  
     }
 
 }

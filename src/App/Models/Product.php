@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Framework\Model;
+use PDO;
 
 class Product extends Model
 {
@@ -16,6 +17,19 @@ class Product extends Model
 
         }
 
+    }
+
+    public function getTotal(): int 
+    {
+        $sql = "SELECT COUNT(id) AS total from product";
+
+        $pdo = $this->database->getConnection();
+
+        $stmt = $pdo->query($sql);
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (int)$data["total"];
     }
 
     

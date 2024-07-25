@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Framework;
 
 use ErrorException;
-use Exception;
 use Framework\Exceptions\PageNotFoundException;
 use Throwable;
 
