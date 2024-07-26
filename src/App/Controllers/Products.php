@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Product;
 use Framework\Controller;
 use Framework\Exceptions\PageNotFoundException;
+use Framework\Response;
 
 class Products extends Controller
 {
@@ -12,15 +13,103 @@ class Products extends Controller
     {
     }
 
-    public function index()
+    public function index(): Response
     {
         $products = $this->model->findAll();
 
-        echo $this->viewer->render("Products/index.mvc.php", [
+        return $this->view("Products/index.mvc.php", [
             "products" => $products, 
             "total" => $this->model->getTotal()
         ]);
         
+    }
+
+    public function show(string $id): Response
+    {
+        $product = $this->getProduct($id);
+
+        return $this->view("Products/show.mvc.php", [
+            "product" => $product
+        ]);
+        
+    }
+
+    public function new(): Response
+    {
+        return $this->view("Products/new.mvc.php");
+    }
+
+    public function create(): Response
+    {
+        $data = [
+            "name" => $this->request->post["name"],
+            "description" => empty($this->request->post["description"]) ? null : $this->request->post["description"]
+        ];
+
+        if($this->model->insert($data)){
+
+            return $this->redirect("/products/{$this->model->getInsertID()}/show");
+
+        }else{
+            
+            return $this->view("Products/new.mvc.php", [
+                "errors" => $this->model->getErrors(),
+                "product" => $data
+            ]);
+        }
+
+    }
+
+    public function edit(string $id): Response
+    {
+        $product = $this->getProduct($id);
+
+        return $this->view("Products/edit.mvc.php", [
+            "product" => $product
+        ]);
+        
+    }
+
+    public function update(string $id): Response
+    {
+        
+        $product = $this->getProduct($id);        
+    
+        $product["name"] = $this->request->post["name"];
+        $product["description"] = empty($this->request->post["description"]) ? null : $this->request->post["description"];
+    
+
+        if($this->model->update($id, $product)){
+
+            return $this->redirect("/products/{$id}/show");
+
+        }else{
+            
+            return $this->view("Products/edit.mvc.php", [
+                "errors" => $this->model->getErrors(), 
+                "product" => $product
+            ]);
+        }
+
+    }
+
+    public function delete(string $id): Response
+    {
+        $product = $this->getProduct($id);
+
+        return $this->view("Products/delete.mvc.php", [
+            "product" => $product
+        ]);
+
+    }
+
+    public function destroy(string $id): Response
+    {
+        $product = $this->getProduct($id);
+        $this->model->delete($id);
+        header("Location: /products/index");
+        exit;
+
     }
 
     private function getProduct(string $id): array 
@@ -35,93 +124,13 @@ class Products extends Controller
 
     }
 
-    public function show(string $id)
+    public function responseCodeExample(): Response 
     {
-        $product = $this->getProduct($id);
+        $this->response->setStatusCode(451);
 
-        echo $this->viewer->render("Products/show.mvc.php", [
-            "product" => $product
-        ]);
-        
+        $this->response->setBody("Unavailable for legal reasons");
+
+        return $this->response;
     }
 
-    public function new()
-    {
-        echo $this->viewer->render("Products/new.mvc.php");
-    }
-
-    public function create() 
-    {
-        $data = [
-            "name" => $this->request->post["name"],
-            "description" => empty($this->request->post["description"]) ? null : $this->request->post["description"]
-        ];
-
-        if($this->model->insert($data)){
-
-            header("Location: /products/{$this->model->getInsertID()}/show");
-            exit;
-
-        }else{
-            
-            echo $this->viewer->render("Products/new.mvc.php", [
-                "errors" => $this->model->getErrors(),
-                "product" => $data
-            ]);
-        }
-
-    }
-
-    public function edit(string $id)
-    {
-        $product = $this->getProduct($id);
-
-        echo $this->viewer->render("Products/edit.mvc.php", [
-            "product" => $product
-        ]);
-        
-    }
-
-    public function update(string $id) 
-    {
-        
-        $product = $this->getProduct($id);        
-    
-        $product["name"] = $this->request->post["name"];
-        $product["description"] = empty($this->request->post["description"]) ? null : $this->request->post["description"];
-    
-
-        if($this->model->update($id, $product)){
-
-            header("Location: /products/{$id}/show");
-            exit;
-
-        }else{
-            
-            echo $this->viewer->render("Products/edit.mvc.php", [
-                "errors" => $this->model->getErrors(), 
-                "product" => $product
-            ]);
-        }
-
-    }
-
-    public function delete(string $id)
-    {
-        $product = $this->getProduct($id);
-
-        echo $this->viewer->render("Products/delete.mvc.php", [
-            "product" => $product
-        ]);
-
-    }
-
-    public function destroy(string $id) 
-    {
-        $product = $this->getProduct($id);
-        $this->model->delete($id);
-        header("Location: /products/index");
-        exit;
-
-    }
 }
