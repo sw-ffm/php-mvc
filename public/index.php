@@ -20,10 +20,11 @@ set_exception_handler("Framework\ErrorHandler::handleException");
 
 $router = require ROOT_PATH . "/config/routes.php";
 $container = require ROOT_PATH . "/config/services.php";
+$middleware = require ROOT_PATH . "/config/middleware.php";
 
 $request = Framework\Request::createFromGlobals();
 
-$dispatcher = new Framework\Dispatcher($router, $container);
+$dispatcher = new Framework\Dispatcher($router, $container, $middleware);
 $response = $dispatcher->handle($request);
 
 $response->send();
